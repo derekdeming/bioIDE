@@ -1,4 +1,4 @@
-from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase
+from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
 from db_wrapper.pubmed import PubMed
 
 
@@ -49,15 +49,34 @@ def main():
     # for batch in geo.fetch_records(term, retmax):
     #     print(batch)
     
-    pubmed = PubMed()
 
-    # Search for articles
-    search_results = pubmed.esearch("OpenAI")
-    print(search_results)
+# ---------------- PUBMED API -----------------
+    # pubmed = PubMed()
 
-    # Fetch specific articles
-    fetch_results = pubmed.efetch(['25359968', '26287646'])
-    print(fetch_results)
+    # # Search for articles
+    # search_results = pubmed.esearch("OpenAI")
+    # print(search_results)
+
+    # # Fetch specific articles
+    # fetch_results = pubmed.efetch(['25359968', '26287646'])
+    # print(fetch_results)
+
+# ---------------- UNIPROT API -----------------
+    uniprot = UniProtDatabase()
+
+    # protein0 = uniprot.search_proteins('P21802') -- NOT WORKING
+    # protein1 = uniprot.get_protein_by_accession('P21802')
+    # protein2 = uniprot.get_protein_isoforms_by_accession('P21802')
+    # protein3 = uniprot.get_protein_sequence_by_accession('P21802')
+    # protein4 = uniprot.get_protein_features_by_accession('P21802')
+    # protein5 = uniprot.search_protein_features('insulin')
+    # protein6 = uniprot.get_protein_variants_by_accession('P21802', 'isoform')
+    # protein7 = uniprot.get_proteomics_by_accession('P21802')
+    # protein8 = uniprot.get_antigen_by_accession('P21802')
+    protein9 = uniprot.get_mutagenesis_by_accession('P21802')
+
+
+    print(protein9)
 
 if __name__ == '__main__':
     main()

@@ -23,7 +23,7 @@ class BaseDatabase(ABC):
         url = self.get_endpoint_url(endpoint)
         response = self.session.get(url, **kwargs)
         response.raise_for_status()  # Raise an exception if the request failed
-        return response.json()
+        return response
 
     def post(self, endpoint, data=None, json=None, **kwargs):
         """

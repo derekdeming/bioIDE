@@ -11,9 +11,9 @@ class EnsemblDatabase(BaseDatabase):
 
     def get_sequence_by_id(self, id):
         response = self.get(f"sequence/id/{id}", headers={"Content-Type": "application/json"})
-        return response
+        return response.text
 
     def get_gene_by_id(self, id):
         response = self.get(f"lookup/id/{id}", headers={"Content-Type": "application/json"})
-        return response
+        return response.text
     

@@ -1,16 +1,36 @@
 from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
-from db_wrapper.pubmed import PubMed
+from utils.parser import process_paper_data
+from database_manager import DatabaseManager
+import json
 
 
+# from db_wrapper.pubmed import PubMed
 
 def main():
     
     #    ---------------- BIORXIV API -----------------
+    db_manager = DatabaseManager()
+
+    response  = db_manager.fetch("biorxiv", "fetch_details", server="biorxiv", interval="2021-06-01/2021-06-05")
+    papers = response.json()
+    processed_papers = [process_paper_data(paper) for paper in papers['collection']]
+
+    counter = 0
+    for processed_paper in processed_papers:
+        print(processed_paper)
+        print("\n\n")
+        counter += 1
+        if counter >= 3:
+            break
+
+
+    
+    
     # db = BiorxivDatabase()
 
     # # Fetch details for a given date interval
-    # details = db.fetch_details('biorxiv', '2023-06-01/2023-06-05')
-    # print(details)
+    # details = db.fetch_details('biorxiv', '2023-06-01/2023-06-01')
+    # print(details.text)
 
     # # Fetch preprint publications for a given date interval
     # preprints = db.fetch_preprint_publications('biorxiv', '2023-06-01/2023-06-05')
@@ -62,7 +82,7 @@ def main():
     # print(fetch_results)
 
 # ---------------- UNIPROT API -----------------
-    uniprot = UniProtDatabase()
+    # uniprot = UniProtDatabase()
 
     # protein0 = uniprot.search_proteins('P21802') -- NOT WORKING
     # protein1 = uniprot.get_protein_by_accession('P21802')
@@ -73,10 +93,10 @@ def main():
     # protein6 = uniprot.get_protein_variants_by_accession('P21802', 'isoform')
     # protein7 = uniprot.get_proteomics_by_accession('P21802')
     # protein8 = uniprot.get_antigen_by_accession('P21802')
-    protein9 = uniprot.get_mutagenesis_by_accession('P21802')
+    # protein9 = uniprot.get_mutagenesis_by_accession('P21802')
 
 
-    print(protein9)
+    # print(protein3)
 
 if __name__ == '__main__':
     main()

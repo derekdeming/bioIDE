@@ -45,12 +45,12 @@ class UniProtDatabase(BaseDatabase):
         """
         return self.get(f"features/{accession}?format={format}").text
 
-# # PROTEIN 5 -- QUERY FUNCTIONALITY ISN'T WORKING YET
-#     def search_protein_features(self, query, format="json"):
-#         """
-#         Search protein sequence features in UniProt
-#         """
-#         return self.get(f"features?query={query}&format={format}")
+# PROTEIN 5 -- QUERY FUNCTIONALITY ISN'T WORKING YET
+    def search_protein_features(self, query, format="json"):
+        """
+        Search protein sequence features in UniProt
+        """
+        return self.get(f"features?query={query}&format={format}")
     
 # PROTEIN 6
     def get_protein_variants_by_accession(self, accession, format="json"):

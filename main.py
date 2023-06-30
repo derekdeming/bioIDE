@@ -1,10 +1,10 @@
 from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
 from utils.parser import process_paper_data
 from database_manager import DatabaseManager
+from llama_index import GPTVectorStoreIndex
 import json
-
-
-# from db_wrapper.pubmed import PubMed
+import ray
+import os
 
 def main():
     
@@ -15,6 +15,22 @@ def main():
     papers = response.json()
     processed_papers = [process_paper_data(paper) for paper in papers['collection']]
 
+    # parse and embed the paper data
+    nodes = db_manager.parse_and_embed_data(processed_papers)
+    
+    # create a vector index and add the nodes during initialization
+    api_key = os.environ['OPENAI_API_KEY'] = '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'
+    vector_index = GPTVectorStoreIndex(
+        openai_api_key=api_key,
+        nodes=nodes,
+        vector_length=768,
+        num_annoy_trees=100,
+        embedding_storage_type='numpy',
+    )
+
+    # save the vector index
+    vector_index.save("vector_index")
+    
     counter = 0
     for processed_paper in processed_papers:
         print(processed_paper)

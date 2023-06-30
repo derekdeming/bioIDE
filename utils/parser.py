@@ -1,8 +1,4 @@
 import json
-import re
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
 
 def process_paper_data(paper_json):
     paper_data = {}
@@ -14,7 +10,14 @@ def process_paper_data(paper_json):
     paper_data['category'] = paper_json['category']
     paper_data['abstract'] = paper_json['abstract']
 
-    return paper_data
+    # convert the dictionary to a JSON string
+    json_data = json.dumps(paper_data)
+    
+    return json_data
+
+
+
+
 
 # def preprocess_text(text):
 

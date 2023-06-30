@@ -1,43 +1,26 @@
 from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
-from utils.parser import process_paper_data
+from utils.parser import process_jsons_parallel
 from database_manager import DatabaseManager
-from llama_index import GPTVectorStoreIndex
 import json
-import ray
-import os
+
+
+# from db_wrapper.pubmed import PubMed
 
 def main():
-    
-    #    ---------------- BIORXIV API -----------------
     db_manager = DatabaseManager()
 
     response  = db_manager.fetch("biorxiv", "fetch_details", server="biorxiv", interval="2021-06-01/2021-06-05")
-    papers = response.json()
-    processed_papers = [process_paper_data(paper) for paper in papers['collection']]
+    papers = response.json()['collection']
 
-    # parse and embed the paper data
-    nodes = db_manager.parse_and_embed_data(processed_papers)
-    
-    # create a vector index and add the nodes during initialization
-    api_key = os.environ['OPENAI_API_KEY'] = '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'
-    vector_index = GPTVectorStoreIndex(
-        openai_api_key=api_key,
-        nodes=nodes,
-        vector_length=768,
-        num_annoy_trees=100,
-        embedding_storage_type='numpy',
-    )
-
-    # save the vector index
-    vector_index.save("vector_index")
-    
-    counter = 0
-    for processed_paper in processed_papers:
-        print(processed_paper)
-        print("\n\n")
-        counter += 1
-        if counter >= 3:
-            break
+    # Process the papers in parallel and convert them to nodes
+    nodes = process_jsons_parallel(papers)
+    print(nodes)
+    # just printing out the first three for testing purposes
+    # for i, node in enumerate(nodes):
+    #     print(node)
+    #     print("\n\n")
+    #     if i >= 2:  
+    #         break
 
 
     

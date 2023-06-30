@@ -1,10 +1,10 @@
-from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
-from utils.parser import process_jsons_parallel
+# from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
+from utils.vector_index import EmbedNodes
+from typing import List
+from utils.parser import process_paper_data, convert_documents_into_nodes
 from database_manager import DatabaseManager
 import json
 
-
-# from db_wrapper.pubmed import PubMed
 
 def main():
     db_manager = DatabaseManager()
@@ -12,15 +12,19 @@ def main():
     response  = db_manager.fetch("biorxiv", "fetch_details", server="biorxiv", interval="2021-06-01/2021-06-05")
     papers = response.json()['collection']
 
-    # Process the papers in parallel and convert them to nodes
-    nodes = process_jsons_parallel(papers)
+    # Process each paper separately and store the resulting Documents in a dictionary
+    documents = {paper['doi']: process_paper_data(paper) for paper in papers}
+
+    # Convert the dictionary of Documents into Nodes
+    nodes = convert_documents_into_nodes(documents)
     print(nodes)
-    # just printing out the first three for testing purposes
-    # for i, node in enumerate(nodes):
-    #     print(node)
-    #     print("\n\n")
-    #     if i >= 2:  
-    #         break
+
+    # Just printing out the first three for testing purposes
+    for i, node in enumerate(nodes):
+        print(node)
+        print("\n\n")
+        if i >= 2:  
+            break
 
 
     

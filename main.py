@@ -1,10 +1,13 @@
 # from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
-from utils.vector_index import EmbedNodes
 from typing import List
-from utils.parser import process_paper_data, convert_documents_into_nodes
+from pathlib import Path
+from utils.parser import convert_documents_into_nodes, EmbedNodes, load_and_parse_json, convert_documents_into_nodes_pdfs, load_and_parse_files_pdfs
 from database_manager import DatabaseManager
+from llama_index import GPTVectorStoreIndex
+import ray
+from ray.data import Dataset
+from ray.data import ActorPoolStrategy
 import json
-
 
 def main():
     db_manager = DatabaseManager()
@@ -12,20 +15,72 @@ def main():
     response  = db_manager.fetch("biorxiv", "fetch_details", server="biorxiv", interval="2021-06-01/2021-06-05")
     papers = response.json()['collection']
 
-    # Process each paper separately and store the resulting Documents in a dictionary
-    documents = {paper['doi']: process_paper_data(paper) for paper in papers}
+    # formatting it so that we can process each paper separately and store the resulting Documents in a dictionary
+    documents = {paper['doi']: load_and_parse_json(paper)['doc'] for paper in papers}
+    # print(documents)
 
-    # Convert the dictionary of Documents into Nodes
-    nodes = convert_documents_into_nodes(documents)
-    print(nodes)
+    # call the convert documents to nodes function 
+    biorxiv_nodes = convert_documents_into_nodes(list(documents.values()))
+    # print(biorxiv_nodes)
 
-    # Just printing out the first three for testing purposes
-    for i, node in enumerate(nodes):
-        print(node)
-        print("\n\n")
-        if i >= 2:  
-            break
+    # will start to create the Ray Dataset pipeline here 
+    biorxiv_ds = ray.data.from_items([{"node": node['node']} for node in biorxiv_nodes], parallelism=20)
+    print(biorxiv_ds)
 
+
+    # Use `map_batches` to specify a batch size to maximize GPU utilization.
+    # We define `EmbedNodes` as a class instead of a function so we only initialize the embedding model once. 
+    #   This state can be reused for multiple batches.
+    embedded_nodes = biorxiv_ds.map_batches(
+        EmbedNodes, 
+        batch_size=1, 
+        # Use 1 GPU per actor.
+        num_cpus=1,
+        num_gpus=None,
+        # There is 1 gpu on the cluster that I am aware of and 16 cpus. Each actor uses 1 cpu. So we will used 7 total actors.
+        # Set the size of the ActorPool to the number of GPUs or CPUs in the cluster.
+        compute=ActorPoolStrategy(size=7), 
+    )
+
+    # Trigger execution and collect all the embedded nodes.
+    biorxiv_docs_nodes = []
+    for row in embedded_nodes.iter_rows():
+        node = row["embedded_nodes"]
+        assert node.embedding is not None
+        biorxiv_docs_nodes.append(node)
+
+    # store the embedded nodes in a local vector store, and persist to disk - not ideal but will work for now
+    print("Storing Ray Documentation embeddings in vector index.")
+
+    biorxiv_docs_index = GPTVectorStoreIndex(nodes=biorxiv_docs_nodes)
+    biorxiv_docs_index.storage_context.persist(persist_dir="C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\stored_embeddings\\biorxiv")
+
+
+    # # get paths the paths for the locally downloaded documentation.
+    # all_docs_gen = Path("./bio_papers").rglob("*")
+    # all_docs = [{"path": doc.resolve()} for doc in all_docs_gen]
+
+    # # Create the Ray Dataset pipeline - same as above
+    # local_ds = ray.data.from_items(all_docs)
+    # loaded_docs = local_ds.map_batches(load_and_parse_files_pdfs)
+    # bio_local_paper_nodes = loaded_docs.map_batches(convert_documents_into_nodes)
+    # embedded_nodes = bio_local_paper_nodes.map_batches(
+    #     EmbedNodes, 
+    #     batch_size=1, 
+    #     num_cpus=1,
+    #     num_gpus=None,
+    #     compute=ActorPoolStrategy(size=7), 
+    # )
+    # bio_local_docs_nodes = []
+    # for row in embedded_nodes.iter_rows():
+    #     node = row["embedded_nodes"]
+    #     assert node.embedding is not None
+    #     bio_local_docs_nodes.append(node)
+
+    # print("Storing Ray Documentation embeddings in vector index.")
+
+    # bio_local_docs_index = GPTVectorStoreIndex(nodes=bio_local_docs_nodes)
+    # bio_local_docs_index.storage_context.persist(persist_dir="C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\stored_embeddings\\local_papers")
 
     
     

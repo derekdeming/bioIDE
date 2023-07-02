@@ -1,7 +1,8 @@
 # from db_wrapper import BiorxivDatabase, EnsemblDatabase, GeoDatabase, UniProtDatabase
 from typing import List
 from pathlib import Path
-from utils.parser import convert_documents_into_nodes, EmbedNodes, load_and_parse_json, convert_documents_into_nodes_pdfs, load_and_parse_files_pdfs
+from utils.embed_nodes import EmbedNodes
+from utils.parser import convert_documents_into_nodes, load_and_parse_json, convert_documents_into_nodes_pdfs, load_and_parse_files_pdfs
 from database_manager import DatabaseManager
 from llama_index import GPTVectorStoreIndex
 import ray
@@ -50,7 +51,7 @@ def main():
         biorxiv_docs_nodes.append(node)
 
     # store the embedded nodes in a local vector store, and persist to disk - not ideal but will work for now
-    print("Storing Ray Documentation embeddings in vector index.")
+    print("Storing bioRxiv API embeddings in vector index.")
 
     biorxiv_docs_index = GPTVectorStoreIndex(nodes=biorxiv_docs_nodes)
     biorxiv_docs_index.storage_context.persist(persist_dir="C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\stored_embeddings\\biorxiv")

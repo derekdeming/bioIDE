@@ -109,21 +109,19 @@ def test_geodatabase():
     # Construct directory and fetch file
     accession = 'GSE159451'  # replace with your accession
     dir_path = db.construct_geo_directory(accession)
-    file_name = accession + '_family.soft.gz'  # replace with your file name
+    file_name = accession + '_family.soft.gz'  
 
-    # Specify your local path to store the fetched files
-    local_path = 'C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\storage'  # replace with your local path
 
-    # Fetch file
+    local_path = 'C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\storage'  
+
+
     print(f"Fetching file '{file_name}'...")
     db.fetch_geo_file(ftp, dir_path, file_name, local_path)
 
-    # Decompress file
     print(f"Decompressing file '{file_name}'...")
     file_path = os.path.join(local_path, file_name)
     db.decompress_file(file_path)
 
-    # Close FTP connection
     ftp.quit()
 
     print("All tasks completed.")

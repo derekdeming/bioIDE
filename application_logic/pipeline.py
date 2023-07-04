@@ -3,10 +3,9 @@ import asyncio
 from llama_index import GPTVectorStoreIndex
 
 async def run_pipeline(database_name: str, interval: str = None):
-    # Get pipeline
+
     pipeline = get_pipeline(database_name)
 
-    # Run pipeline
     papers = await pipeline.fetch_data(interval)
     await pipeline.process_data(papers)
     embedded_nodes = await pipeline.embed_nodes()
@@ -20,15 +19,15 @@ def get_pipeline(database_name: str):
     pipeline_classes = {
         'biorxiv': BiorxivPipeline,
         # 'pubmed': PubmedPipeline,
-        # Add more databases as needed...
+        # 'geo': GeoPipeline,
+        # 'ensembl': EnsemblPipeline,
+        # ....
     }
 
-    # Get pipeline class
     pipeline_class = pipeline_classes.get(database_name.lower())
 
     if pipeline_class is None:
         raise ValueError(f"Unknown database: {database_name}")
-
-    # Instantiate and return pipeline
+    
     return pipeline_class()
 

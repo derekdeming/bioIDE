@@ -8,11 +8,9 @@ def main():
     parser.add_argument('--databases', nargs='+', help='List of databases to use')
     parser.add_argument('--interval', help='Interval to fetch data', default=None)
 
-
-    # Parse CLI arguments
     args = parser.parse_args()
 
-    # Run selected pipelines in sequence
+    # this will run selected pipelines in sequence
     for database in args.databases:
         asyncio.run(run_pipeline(database, args.interval))
 

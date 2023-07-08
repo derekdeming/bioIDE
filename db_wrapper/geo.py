@@ -96,9 +96,7 @@ def test_geodatabase():
 
     # Set the search term and number of records to retrieve
     term = 'adipocytes'  # replace with your search term
-    retmax = 10  # adjust as needed
-
-    # Fetch records
+    retmax = 10 
     print(f"Fetching records for term '{term}'...")
     for record in db.fetch_records(term, retmax):
         print(record)
@@ -128,4 +126,4 @@ def test_geodatabase():
 
 
 # Run the test
-test_geodatabase()
+# test_geodatabase()

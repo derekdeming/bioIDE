@@ -12,7 +12,7 @@ async def run_pipeline(database_name: str, interval: str = None):
 
     print(f"Storing {type(pipeline).__name__} embeddings in vector index.")
     docs_index = GPTVectorStoreIndex(nodes=embedded_nodes)
-    docs_index.storage_context.persist(persist_dir=f"C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\stored_embeddings\\{type(pipeline).__name__}")
+    docs_index.storage_context.persist(persist_dir=f"C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\database_storage\\stored_embeddings\\{type(pipeline).__name__}")
 
 def get_pipeline(database_name: str):
     # Map database names to pipeline classes
@@ -30,4 +30,3 @@ def get_pipeline(database_name: str):
         raise ValueError(f"Unknown database: {database_name}")
     
     return pipeline_class()
-

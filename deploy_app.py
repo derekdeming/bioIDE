@@ -39,7 +39,7 @@ class QADeployment:
         #   1. bioRxiv
         #   2. local papers 
         self.biorxiv_docs_engine = biorxiv_docs_index.as_query_engine(similarity_top_k=5, service_context=service_context)
-        self.local_papers_engine = local_papers_index.as_query_engine(similarity_top_k=5, service_context=service_context)
+        # self.local_papers_engine = local_papers_index.as_query_engine(similarity_top_k=5, service_context=service_context)
 
         # Define a sub-question query engine, that can use the individual query engines as tools.
         query_engine_tools = [
@@ -47,20 +47,20 @@ class QADeployment:
                 query_engine=self.ray_docs_engine,
                 metadata=ToolMetadata(name="biorxiv_docs_engine", description="Provides information about the Ray documentation")
             ),
-            QueryEngineTool(
-                query_engine=self.ray_blogs_engine, 
-                metadata=ToolMetadata(name="local_papers_engine", description="Provides content from a large number of papers ")
-            ),
+            # QueryEngineTool(
+            #     query_engine=self.ray_blogs_engine, 
+            #     metadata=ToolMetadata(name="local_papers_engine", description="Provides content from a large number of papers ")
+            # ),
         ]
 
         self.sub_query_engine = SubQuestionQueryEngine.from_defaults(query_engine_tools=query_engine_tools, service_context=service_context, use_async=False)
 
     def query(self, engine: str, query: str):
         # Route the query to the appropriate engine.
-        if engine == "docs":
-            return self.ray_docs_engine.query(query)
-        elif engine == "blogs":
-            return self.ray_blogs_engine.query(query)
+        if engine == "biorxiv":
+            return self.biorxiv_docs_engine.query(query)
+        elif engine == "local_papers":
+            return self.local_papers_engine.query(query)
         elif engine == "subquestion":
             response =  self.sub_query_engine.query(query)
             source_nodes = response.source_nodes

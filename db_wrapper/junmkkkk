@@ -1,0 +1,114 @@
+import os
+import requests
+from urllib.parse import urlencode
+from xml.etree import ElementTree
+
+BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils'
+class GeoDatabase:
+    def __init__(self):
+        self.session = requests.Session()
+
+    def search(self, query, db='gds', retmax=5000):
+        params = {
+            'db': db,
+            'term': query,
+            'retmax': retmax,
+            'usehistory': 'y'
+        }
+        response = self.session.get(f"{BASE_URL}/esearch.fcgi", params=params)
+        root = ElementTree.fromstring(response.content)
+
+        query_key = root.find('QueryKey').text
+        web_env = root.find('WebEnv').text
+
+        return query_key, web_env
+
+    def summary(self, query_key, web_env, db='gds'):
+        params = {
+            'db': db,
+            'query_key': query_key,
+            'WebEnv': web_env
+        }
+        response = self.session.get(f"{BASE_URL}/esummary.fcgi", params=params)
+        root = ElementTree.fromstring(response.content)
+
+        summaries = []
+        for doc_summary in root.findall('DocumentSummary'):
+            summaries.append({child.tag: child.text for child in doc_summary})
+
+        return summaries
+
+    def fetch(self, query_key, web_env, db='gds'):
+        params = {
+            'db': db,
+            'query_key': query_key,
+            'WebEnv': web_env
+        }
+        response = self.session.get(f"{BASE_URL}/efetch.fcgi", params=params)
+        try:
+            root = ElementTree.fromstring(response.content)
+        except ElementTree.ParseError as e:
+            print(f"Error parsing XML: {e}")
+            print(f"Response content: {response.content}")
+            raise
+        return root
+
+    def link(self, query_key, web_env, dbfrom='gds', db='pubmed'):
+        params = {
+            'dbfrom': dbfrom,
+            'db': db,
+            'query_key': query_key,
+            'WebEnv': web_env
+        }
+        response = self.session.get(f"{BASE_URL}/elink.fcgi", params=params)
+        root = ElementTree.fromstring(response.content)
+
+        linksets = []
+        for linkset in root.findall('LinkSet'):
+            linksets.append({child.tag: child.text for child in linkset})
+
+        return linksets
+    
+
+    def construct_ftp_url(series_accession_number):
+        return f'ftp://ftp.ncbi.nlm.nih.gov/geo/series/{series_accession_number[:6]}nnn/{series_accession_number}/suppl/'
+
+
+    # def download_geo_series(series_accession_number):
+    #     url = construct_ftp_url(series_accession_number)
+    #     os.system(f'wget -r -nH --cut-dirs=7 -A .soft.gz -P data/ {url}')
+
+
+    def close(self):
+        self.session.close()
+
+
+geo = GeoDatabase()
+
+# Search for Series released within the last 3 months.
+query_key, web_env = geo.search('GSE[ETYP]+AND+"published+last+3+months"[Filter]')
+
+# Retrieve the summary documents for all Series records.
+summaries = geo.summary(query_key, web_env)
+
+for summary in summaries:
+    print(summary)
+
+# You can also fetch or link data.
+fetched_data = geo.fetch(query_key, web_env)
+linked_data = geo.link(query_key, web_env)
+
+# Remember to close the session when done.
+geo.close()
+
+
+
+'''
+be really good at retrieving data from the database, 
+parsing it out, and then storing it in a way that makes it easy to retrieve later.
+
+
+
+
+
+'''

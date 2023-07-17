@@ -101,7 +101,7 @@ def test_geodatabase():
     for record in db.fetch_records(term, retmax):
         print(record)
 
-    # Connect to FTP
+    # Connect to FTP - 
     ftp = db.ftp_connect()
 
     # Construct directory and fetch file

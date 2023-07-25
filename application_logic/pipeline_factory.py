@@ -17,4 +17,4 @@ def all_subclasses(cls):
         [s for c in cls.__subclasses__() for s in all_subclasses(c)]
     )
 
-# Add more functions or classes here as per your existing file
+# add more functions or classes here as per existing file

@@ -35,6 +35,7 @@ class BiorxivPipeline(AbstractPipeline):
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
 
-    async def store_data(self, nodes: List[Node], storage_dir: str):
-        print(f"Storing {len(nodes)} bioRxiv API embeddings in vector index.")
-        self.store_index(nodes, storage_dir)
+    async def store_data(self, embedded_nodes, storage_dir: str):
+        print(f"Storing {len(embedded_nodes)} bioRxiv API embeddings in vector index.")
+        self.store_index(embedded_nodes, storage_dir)
+

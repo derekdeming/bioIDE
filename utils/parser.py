@@ -5,11 +5,13 @@ from llama_index.data_structs import Node
 from llama_index.schema import Document
 from llama_index import download_loader
 from llama_index.schema import Document
-
-
+from dotenv import load_dotenv
 import os
-if "OPENAI_API_KEY" not in os.environ:
-    raise RuntimeError("Please add the OPENAI_API_KEY environment variable to run this script. Run the following in your terminal `export OPENAI_API_KEY=...`")
+
+api_key = os.getenv('OPENAI_API_KEY')
+
+# if "OPENAI_API_KEY" not in os.environ:
+#     raise RuntimeError("Please add the OPENAI_API_KEY environment variable to run this script. Run the following in your terminal `export OPENAI_API_KEY=...`")
 
 
 UnstructuredReader = download_loader("UnstructuredReader")

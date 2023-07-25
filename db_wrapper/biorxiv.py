@@ -40,7 +40,7 @@ class BiorxivDatabase(BaseDatabase):
         papers = response.json()['collection']
         return papers
     
-    def fetch_details(self, server, interval, cursor=0, format='json'):
+    def fetch_details(self, server, interval, cursor=0, format='json', params=None):
         """
         Fetch details from the BioRxiv API.
 
@@ -54,7 +54,7 @@ class BiorxivDatabase(BaseDatabase):
             dict: The response from the API as a dictionary.
         """
         endpoint = f"details/{server}/{interval}/{cursor}/{format}"
-        return self.get(endpoint)
+        return self.get(endpoint, params=params)
 
     def fetch_preprint_publications(self, server, interval, cursor=0, format='json'):
         """

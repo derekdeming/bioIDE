@@ -1,35 +1,40 @@
 import argparse
 from application_logic.pipeline_old import get_pipeline
 import asyncio
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def main():
     parser = argparse.ArgumentParser(description='Run bio database pipelines.')
     parser.add_argument('--databases', nargs='+', help='List of databases to use')
     parser.add_argument('--interval', help='Interval to fetch data', default=None)
-    parser.add_argument('--store_only', action='store_true', help='Only store API results')
+    parser.add_argument('--storage_dir', help='Directory to store api data', default='./')
+    parser.add_argument('--store_only', action='store_true', help='Store the data without processing and embedding')
 
     args = parser.parse_args()
 
     for database in args.databases:
         pipeline = get_pipeline(database)
         papers = asyncio.run(pipeline.fetch_data(args.interval))
+
+        storage_dir = os.path.join(args.storage_dir, database)
+        if not os.path.exists(storage_dir):
+            os.makedirs(storage_dir)
+
         if args.store_only:
-            asyncio.run(pipeline.store_data(papers))
+            asyncio.run(pipeline.store_data(papers, storage_dir))
         else:
             asyncio.run(pipeline.process_data(papers))
             embedded_nodes = asyncio.run(pipeline.embed_nodes())
-            asyncio.run(pipeline.store_data(embedded_nodes))
+            asyncio.run(pipeline.store_data(embedded_nodes, storage_dir))
 
 if __name__ == '__main__':
     main()
-
-
 
     # Run selected pipelines concurrently
     # await asyncio.gather(*(run_pipeline(db) for db in args.databases))
-
-if __name__ == '__main__':
-    main()
     # asyncio.run(main())
 
 

@@ -1,5 +1,5 @@
 import argparse
-from application_logic.pipeline_factory import get_pipeline
+from application_logic.pipeline_old import get_pipeline
 import asyncio
 
 def main():

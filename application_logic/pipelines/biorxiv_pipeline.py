@@ -11,11 +11,10 @@ class BiorxivPipeline(AbstractPipeline):
     def __init__(self):
         self.database = BiorxivDatabase()
 
-    async def fetch_data(self, interval: str = None) -> List[Dict[str, Any]]: 
+    async def fetch_data(self, interval: str = None, params: dict = None) -> List[Dict[str, Any]]:
         if interval is None:
-            interval = "2021-06-01/2021-06-05" 
-        response = self.database.fetch_details(server="biorxiv", interval=interval)
-        papers = response.json()['collection']
+            interval = "2021-06-01/2021-06-05"
+        papers = self.database.fetch_details(server="biorxiv", interval=interval, params=params).json()['collection']
         return papers
 
     async def process_data(self, data: List[Dict]):

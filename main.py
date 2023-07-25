@@ -1,18 +1,29 @@
 import argparse
-from application_logic.pipeline import run_pipeline
+from application_logic.pipeline_factory import get_pipeline
 import asyncio
 
 def main():
-    # Define CLI
     parser = argparse.ArgumentParser(description='Run bio database pipelines.')
     parser.add_argument('--databases', nargs='+', help='List of databases to use')
     parser.add_argument('--interval', help='Interval to fetch data', default=None)
+    parser.add_argument('--store_only', action='store_true', help='Only store API results')
 
     args = parser.parse_args()
 
-    # this will run selected pipelines in sequence
     for database in args.databases:
-        asyncio.run(run_pipeline(database, args.interval))
+        pipeline = get_pipeline(database)
+        papers = asyncio.run(pipeline.fetch_data(args.interval))
+        if args.store_only:
+            asyncio.run(pipeline.store_data(papers))
+        else:
+            asyncio.run(pipeline.process_data(papers))
+            embedded_nodes = asyncio.run(pipeline.embed_nodes())
+            asyncio.run(pipeline.store_data(embedded_nodes))
+
+if __name__ == '__main__':
+    main()
+
+
 
     # Run selected pipelines concurrently
     # await asyncio.gather(*(run_pipeline(db) for db in args.databases))

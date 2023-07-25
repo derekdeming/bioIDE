@@ -33,6 +33,13 @@ class BiorxivDatabase(BaseDatabase):
         """
         return f"{self.base_url}/{endpoint}"
 
+    def fetch_data(self, interval: str = None):
+        if interval is None:
+            interval = "2021-06-01/2021-06-05" 
+        response = self.fetch_details(server="biorxiv", interval=interval)
+        papers = response.json()['collection']
+        return papers
+    
     def fetch_details(self, server, interval, cursor=0, format='json'):
         """
         Fetch details from the BioRxiv API.

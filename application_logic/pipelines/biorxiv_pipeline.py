@@ -1,4 +1,5 @@
 from typing import List, Dict, Any
+from llama_index.data_structs import Node
 from abc import ABC, abstractmethod
 from db_wrapper.biorxiv import BiorxivDatabase
 from .abstract_pipeline import AbstractPipeline
@@ -11,10 +12,11 @@ class BiorxivPipeline(AbstractPipeline):
     def __init__(self):
         self.database = BiorxivDatabase()
 
-    async def fetch_data(self, interval: str = None, params: dict = None) -> List[Dict[str, Any]]:
+    async def fetch_data(self, interval: str = None, params: dict = None) -> List[Dict[str, Any]]: 
         if interval is None:
-            interval = "2021-06-01/2021-06-05"
-        papers = self.database.fetch_details(server="biorxiv", interval=interval, params=params).json()['collection']
+            interval = "2021-06-01/2021-06-05" 
+        response = self.database.fetch_details(server="biorxiv", interval=interval, params=params)
+        papers = response.json()['collection']
         return papers
 
     async def process_data(self, data: List[Dict]):
@@ -33,6 +35,6 @@ class BiorxivPipeline(AbstractPipeline):
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
 
-    async def store_data(self, storage_dir: str):
-        print(f"Storing {len(self.nodes)} bioRxiv API embeddings in vector index.")
-        self.store_index(self.nodes, storage_dir)
+    async def store_data(self, nodes: List[Node], storage_dir: str):
+        print(f"Storing {len(nodes)} bioRxiv API embeddings in vector index.")
+        self.store_index(nodes, storage_dir)

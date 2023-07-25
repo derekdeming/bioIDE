@@ -7,7 +7,7 @@ class AbstractPipeline(ABC):
         pass
 
     @abstractmethod
-    def fetch_data(self, interval: str) -> List[Dict]:
+    def fetch_data(self, interval: str, params: dict = None) -> List[Dict]:
         pass
 
     @abstractmethod
@@ -16,4 +16,8 @@ class AbstractPipeline(ABC):
 
     @abstractmethod
     def embed_nodes(self, nodes: List[Node]) -> List[Node]:
+        pass
+
+    @abstractmethod
+    def store_data(self, nodes: List[Node], storage_dir: str):
         pass

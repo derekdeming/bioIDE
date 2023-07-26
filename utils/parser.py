@@ -18,26 +18,24 @@ UnstructuredReader = download_loader("UnstructuredReader")
 loader = UnstructuredReader()
 
 def load_and_parse_json(json_row: Dict[str, str]) -> Dict[str, Document]:
-    """
-    Parse a row of JSON data into a Document object.
 
-    Args:
-        json_row (Dict[str, str]): A row of JSON data.
-
-    Returns:
-        Dict[str, Document]: A dictionary containing a "doc" key and a Document value.
-    """
     required_keys = ['doi', 'abstract', 'authors', 'date', 'category']
+
     for key in required_keys:
         if key not in json_row or json_row[key] is None:
             raise ValueError(f"Missing or null value for required key: {key}")
     
     doc = Document(
-        doc_id=json_row.get('doi'),
-        text=json_row.get('abstract'),
-        extra_info={"authors": json_row.get('authors'), "date": json_row.get('date'), "category": json_row.get('category')}
+        doc_id=json_row['doi'],
+        text=json_row['abstract'],
+        metadata={
+        "authors": json_row['authors'],
+        "date": json_row['date'],
+        "category": json_row['category']  
+        }
     )
-    return {"doc": doc}
+    
+    return doc
 
 
 def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, Node]:
@@ -49,7 +47,7 @@ def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, No
     '''
     parser = SimpleNodeParser()
     nodes = parser.get_nodes_from_documents(documents)
-    return [{"node": node} for node in nodes]
+    return [{"node": node.get_type()} for node in nodes]
 
 
 def load_and_parse_files_pdfs(file_row: Dict[str, Path]) -> Dict[str, Document]:

@@ -22,11 +22,14 @@ class BiorxivPipeline(AbstractPipeline):
         return papers
 
     async def process_data(self, data: List[Dict]):
-        documents = {paper['doi']: load_and_parse_json(paper)['doc'] for paper in data}
-        self.nodes = convert_documents_into_nodes(list(documents.values()))
+        documents = {paper['doi']: load_and_parse_json(paper) for paper in data}
+        print(documents)
+        nodes = convert_documents_into_nodes(documents)
+        self.nodes = nodes
 
     async def embed_nodes(self):
-        ds = ray.data.from_items([{"node": node['node']} for node in self.nodes], parallelism=20)
+        nodes = [node["node"] for node in self.nodes]
+        ds = ray.data.from_items([{"node": node['node']} for node in nodes], parallelism=20)
         embedded_nodes = ds.map_batches(
             EmbedNodes, 
             batch_size=1, 
@@ -36,13 +39,16 @@ class BiorxivPipeline(AbstractPipeline):
         )
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
-
     async def store_data(self, nodes: List[Node], storage_dir: str):
-        print(f"Storing {len(nodes)} bioRxiv API embeddings in vector index.")
-        self.store_index(nodes, storage_dir)
-    
-    def store_index(self, nodes: List[Node], storage_dir: str):
-        index = VectorStoreIndex(nodes, storage_dir)
-        for node in nodes:
+        # Embed nodes 
+        embedded_nodes = await self.embed_nodes()
+        # Construct index
+        index = VectorStoreIndex(embedded_nodes, storage_dir)
+        for node in embedded_nodes:
             index.add_document(node.doc_id, node.embedding)
-        index.build()
+        # Store index
+        self.store_index(index, storage_dir)
+
+
+        def store_index(self, index, storage_dir):
+            index.build()

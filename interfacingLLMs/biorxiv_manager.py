@@ -7,20 +7,17 @@ class BioRxivManager:
 
     def fetch_and_parse(self, interval: str = None):
         data = self.database.fetch_data(interval)
-        # parse the fetched data into a dictionary of documents
         documents = [load_and_parse_json(paper)['doc'] for paper in data]
-        # we convert the documents into a dictionary of nodes
         nodes = convert_documents_into_nodes(documents)
         return nodes
 
-# usage
 manager = BioRxivManager()
 nodes = manager.fetch_and_parse(interval="2023-07-01/2023-07-30")
 # print(nodes)
 
 first_five_nodes = nodes[:5]
-for i, node in enumerate(first_five_nodes):
-    print(f"Node {i+1}:")
+for idx, node in enumerate(first_five_nodes):
+    print(f"Node {idx+1}:")
     print(node)
     print("--------------------")
     print("--------------------")

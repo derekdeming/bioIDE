@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.data_structs import Node
@@ -39,16 +39,16 @@ def load_and_parse_json(json_row: Dict[str, str]) -> Dict[str, Document]:
 
 
 
-def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, Node]:
+def convert_documents_into_nodes(documents: List[Document]) -> List[Node]:
     '''
-    This function takes in a dictionary of documents and returns a dictionary of nodes
+    This function takes in a list of documents and returns a list of nodes.
 
-    :param documents: a dictionary of documents
-    :return: a dictionary of nodes
+    :param documents: a list of documents
+    :return: a list of nodes
     '''
     parser = SimpleNodeParser()
     nodes = parser.get_nodes_from_documents(documents)
-    return [{"node": node} for node in nodes]
+    return nodes
 
 
 def load_and_parse_files_pdfs(file_row: Dict[str, Path]) -> Dict[str, Document]:

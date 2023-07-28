@@ -11,16 +11,17 @@ class EmbedNodes:
             encode_kwargs={"device": "cpu", "batch_size": 100}
             )
     
-    def __call__(self, node_batch: List[Dict[str, Node]]) -> List[Dict[str, Node]]:
+    def __call__(self, node_batch: List[Node]) -> List[Dict[str, Node]]:  # updated input type hint
         # Debug check
-        if not all(isinstance(item, dict) and 'node' in item for item in node_batch):
-            raise ValueError("node_batch should be a list of dictionaries with 'node' key")
+        if not all(isinstance(item, Node) for item in node_batch):  # updated condition
+            raise ValueError("node_batch should be a list of TextNode instances")
 
-        nodes = [item['node'] for item in node_batch]
-        text = [node.text for node in nodes]
+        text = [node.text for node in node_batch]
         embeddings = self.embedding_model.embed_documents(text)
-        assert len(nodes) == len(embeddings)
+        assert len(node_batch) == len(embeddings)
 
-        for node, embedding in zip(nodes, embeddings):
+        for node, embedding in zip(node_batch, embeddings):
             node.embedding = embedding
-        return [{"embedded_nodes": node} for node in nodes]
+        return [{"node": node} for node in node_batch]  # return 'node' as key for each node
+
+

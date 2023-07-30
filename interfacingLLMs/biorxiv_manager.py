@@ -6,6 +6,7 @@ from parser import load_and_parse_json, convert_documents_into_nodes
 from embed_nodes import EmbedNodes
 from ray.data import Dataset, ActorPoolStrategy
 from llama_index.data_structs import Node
+from llama_index import GPTVectorStoreIndex
 
 class BioRxivManager:
     def __init__(self):
@@ -29,9 +30,9 @@ class BioRxivManager:
         embedded_nodes = ds.map_batches(
             self.embedder,  # Changed line
             batch_size=1, 
-            num_cpus=1,
-            num_gpus=None,
-            compute=ActorPoolStrategy(size=7), 
+            # num_cpus=1,
+            num_gpus=1,
+            compute=ActorPoolStrategy(size=1), 
         )
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
@@ -45,5 +46,6 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop()
     embedded_nodes = loop.run_until_complete(manager.embed_nodes())  # No need to pass nodes, they're stored in manager.nodes
-
-    print(embedded_nodes)
+    bioindex = GPTVectorStoreIndex(nodes=embedded_nodes)
+    bioindex.storage_context.persist(persist_dir="C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\interfacingLLMs\\stored_embeddings\\biorxiv\\")
+    # print(embedded_nodes)

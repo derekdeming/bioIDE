@@ -1,5 +1,7 @@
 import asyncio
 from typing import List, Dict, Any
+import os
+import json
 import ray
 from biorxiv import BiorxivDatabase
 from parser import load_and_parse_json, convert_documents_into_nodes
@@ -23,12 +25,13 @@ class BioRxivManager:
     def process_data(self, data: List[Dict]):
         documents = {paper['doi']: load_and_parse_json(paper)['doc'] for paper in data}
         self.nodes = convert_documents_into_nodes(list(documents.values()))
-        return self.nodes
+        nodes = self.nodes
+        return nodes
 
     async def embed_nodes(self):
-        ds = ray.data.from_items([node for node in self.nodes], parallelism=20)  # Changed line
+        ds = ray.data.from_items([node for node in self.nodes], parallelism=20) 
         embedded_nodes = ds.map_batches(
-            self.embedder,  # Changed line
+            self.embedder,  
             batch_size=1, 
             # num_cpus=1,
             num_gpus=1,
@@ -37,15 +40,25 @@ class BioRxivManager:
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
 
+        def create_index(self, index_id, vector_store):
+            # Retrieve nodes that were created in `embed_nodes` method
+            nodes = self.nodes  # or get nodes from wherever they're stored
+            index = GPTVectorStoreIndex(index_id=index_id, vector_store=vector_store, nodes=nodes)
+            return index
+
+
 
 if __name__ == "__main__":
     ray.init()
     manager = BioRxivManager()
+    base_path = "C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\interfacingLLMs\\stored_embeddings\\biorxiv\\"
+    # index_struct = manager.load_embeddings(base_path)
+
     papers = manager.fetch_data(interval="2023-07-01/2023-07-30")
-    manager.process_data(papers)  # Process the data and store the nodes in manager.nodes
+    nodes = manager.process_data(papers)  # Process the data and store the nodes in manager.nodes
 
     loop = asyncio.get_event_loop()
     embedded_nodes = loop.run_until_complete(manager.embed_nodes())  # No need to pass nodes, they're stored in manager.nodes
+
     bioindex = GPTVectorStoreIndex(nodes=embedded_nodes)
-    bioindex.storage_context.persist(persist_dir="C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\interfacingLLMs\\stored_embeddings\\biorxiv\\")
-    # print(embedded_nodes)
+    bioindex.storage_context.persist(persist_dir=base_path)

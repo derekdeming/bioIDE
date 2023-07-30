@@ -8,7 +8,7 @@ from parser import load_and_parse_json, convert_documents_into_nodes
 from embed_nodes import EmbedNodes
 from ray.data import Dataset, ActorPoolStrategy
 from llama_index.data_structs import Node
-from llama_index import GPTVectorStoreIndex
+from llama_index import GPTVectorStoreIndex, KeywordTableIndex
 
 class BioRxivManager:
     def __init__(self):
@@ -40,19 +40,12 @@ class BioRxivManager:
         self.nodes = [node["embedded_nodes"] for node in embedded_nodes.iter_rows()]
         return self.nodes
 
-        def create_index(self, index_id, vector_store):
-            # Retrieve nodes that were created in `embed_nodes` method
-            nodes = self.nodes  # or get nodes from wherever they're stored
-            index = GPTVectorStoreIndex(index_id=index_id, vector_store=vector_store, nodes=nodes)
-            return index
-
 
 
 if __name__ == "__main__":
     ray.init()
     manager = BioRxivManager()
     base_path = "C:\\Users\\derek\\cs_projects\\bioML\\bioIDE\\interfacingLLMs\\stored_embeddings\\biorxiv\\"
-    # index_struct = manager.load_embeddings(base_path)
 
     papers = manager.fetch_data(interval="2023-07-01/2023-07-30")
     nodes = manager.process_data(papers)  # Process the data and store the nodes in manager.nodes
@@ -60,5 +53,6 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     embedded_nodes = loop.run_until_complete(manager.embed_nodes())  # No need to pass nodes, they're stored in manager.nodes
 
-    bioindex = GPTVectorStoreIndex(nodes=embedded_nodes)
+    bioindex = GPTVectorStoreIndex.from_documents(nodes=embedded_nodes) # GPTVectorStoreIndex vs  KeywordTableIndex
     bioindex.storage_context.persist(persist_dir=base_path)
+    print(nodes)

@@ -1,27 +1,26 @@
 from typing import Dict, List
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from llama_index.data_structs import Node
-    
-    
+
+
 class EmbedNodes:
     def __init__(self):
         self.embedding_model = HuggingFaceEmbeddings(
+            # Use all-mpnet-base-v2 Sentence_transformer.
+            # This is the default embedding model for LlamaIndex/Langchain.
             model_name="sentence-transformers/all-mpnet-base-v2", 
             model_kwargs={"device": "cpu"},
+            # Use GPU for embedding and specify a large enough batch size to maximize GPU utilization.
+            # Remove the "device": "cuda" to use CPU instead.
             encode_kwargs={"device": "cpu", "batch_size": 100}
             )
     
-    def __call__(self, node_batch: List[Node]) -> List[Dict[str, Node]]:  # updated input type hint
-        # Debug check
-        if not all(isinstance(item, Node) for item in node_batch):  # updated condition
-            raise ValueError("node_batch should be a list of TextNode instances")
-
-        text = [node.text for node in node_batch]
+    def __call__(self, node_batch: Dict[str, List[Node]]) -> Dict[str, List[Node]]:
+        nodes = node_batch["node"]
+        text = [node.text for node in nodes]
         embeddings = self.embedding_model.embed_documents(text)
-        assert len(node_batch) == len(embeddings)
+        assert len(nodes) == len(embeddings)
 
-        for node, embedding in zip(node_batch, embeddings):
+        for node, embedding in zip(nodes, embeddings):
             node.embedding = embedding
-        return [{"node": node} for node in node_batch]  # return 'node' as key for each node
-
-
+        return {"embedded_nodes": nodes}

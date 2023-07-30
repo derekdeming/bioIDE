@@ -38,17 +38,16 @@ def load_and_parse_json(json_row: Dict[str, str]) -> Dict[str, Document]:
     return {'doc': doc}
 
 
-
-def convert_documents_into_nodes(documents: List[Document]) -> List[Node]:
+def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, Node]:
     '''
-    This function takes in a list of documents and returns a list of nodes.
+    This function takes in a dictionary of documents and returns a dictionary of nodes
 
-    :param documents: a list of documents
-    :return: a list of nodes
+    :param documents: a dictionary of documents
+    :return: a dictionary of nodes
     '''
     parser = SimpleNodeParser()
     nodes = parser.get_nodes_from_documents(documents)
-    return nodes
+    return [{"node": node} for node in nodes]
 
 
 def load_and_parse_files_pdfs(file_row: Dict[str, Path]) -> Dict[str, Document]:

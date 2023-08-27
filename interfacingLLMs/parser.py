@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from pathlib import Path
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.data_structs import Node
@@ -36,7 +36,6 @@ def load_and_parse_json(json_row: Dict[str, str]) -> Dict[str, Document]:
     )
     
     return {'doc': doc}
-
 
 
 def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, Node]:

@@ -4,7 +4,7 @@
 
 # The format of the endpoint is https://api.biorxiv.org/details/[server]/[interval]/[cursor]/[format] or https://api.biorxiv.org/details/[server]/[DOI]/na/[format]
 
-from .base import BaseDatabase
+from base import BaseDatabase
 
 class BiorxivDatabase(BaseDatabase):
     """

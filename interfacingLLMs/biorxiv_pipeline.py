@@ -1,10 +1,10 @@
 from typing import List, Dict, Any
 from llama_index.data_structs import Node
 from abc import ABC, abstractmethod
-from db_wrapper.biorxiv import BiorxivDatabase
-from .abstract_pipeline import AbstractPipeline
-from utils.parser import convert_documents_into_nodes, load_and_parse_json
-from utils.embed_nodes import EmbedNodes
+from biorxiv import BiorxivDatabase
+from abstract_pipeline import AbstractPipeline
+from parser import convert_documents_into_nodes, load_and_parse_json
+from embed_nodes import EmbedNodes
 import ray
 from ray.data import Dataset, ActorPoolStrategy
 from llama_index import VectorStoreIndex

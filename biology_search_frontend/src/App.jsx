@@ -1,6 +1,7 @@
 import "./app.scss";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import React from 'react'
+import Home from "./pages/home/Home";
 import Navbar from './components/navbar/Navbar'
 import Footer from "./components/footer/Footer";
 import Login from "./pages/login/Login";
@@ -23,7 +24,7 @@ function App() {
             path: "/",
             element: <Layout />,
             children: [
-                { path: "/", element: <div>Home</div> },
+                { path: "/", element: <Home/> },
                 { path: "/explore", element: <div>Database</div> },
                 { path: "/queries", element: <div>Queries</div> },
                 { path: "/documents", element: <div>Documents of Interest</div> },

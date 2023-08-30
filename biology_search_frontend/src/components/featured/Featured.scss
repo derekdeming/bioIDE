@@ -43,10 +43,10 @@
             }
   
             input {
-              border: none;
-              outline: none;
-  
-              &::placeholder {
+                border: none;
+                outline: none;
+                width: 600px;
+                &::placeholder {
                 color: gray;
               }
             }

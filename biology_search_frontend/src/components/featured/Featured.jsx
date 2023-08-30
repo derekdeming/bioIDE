@@ -12,7 +12,7 @@ function Featured() {
           <div className="search">
             <div className="searchInput">
               <img src="./img/search.png" alt="" />
-              <input type="text" placeholder='Try "building mobil app"' />
+              <input type="text" placeholder='Try "Structural analysis of mutated p450 proteins"' />
             </div>
             <button>Search</button>
           </div>
@@ -25,7 +25,7 @@ function Featured() {
           </div>
         </div>
         <div className="right">
-          {/* <img src="./img/man.png" alt="" /> */}
+          <img src="" alt="" />
         </div>
       </div>
     </div>

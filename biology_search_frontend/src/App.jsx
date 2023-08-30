@@ -3,6 +3,8 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import React from 'react'
 import Navbar from './components/navbar/Navbar'
 import Footer from "./components/footer/Footer";
+import Login from "./pages/login/Login";
+import Register from "./pages/register/Register";
 
 
 function App() {
@@ -30,6 +32,14 @@ function App() {
 
             ]
         }, 
+        {
+            path: "/register",
+            element: <Register />,
+          },
+          {
+            path: "/login",
+            element: <Login />,
+          },
     ]);
 
     return (

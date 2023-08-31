@@ -27,16 +27,21 @@ const ExploreDatabase = () => {
 
     const handleSearch = async () => {
         try {
-            const response = await axios.get(`/getPubMedData/${query}`);
-            if (response.data.error) {
-                console.error('Error fetching data:', response.data.error);
-                return;
-            }
-            setData(response.data.Data);  // Update the data state
+          // This should call your backend API, replace with your actual backend URL
+          const response = await axios.get(`http://localhost:3001/api/getPubMedData/${query}`);
+          
+          if (response.data.error) {
+            console.error('Error fetching data:', response.data.error);
+            return;
+          }
+          
+          // Assuming that your backend sends the data in a field called "Data"
+          setData(response.data.Data);  
+          
         } catch (error) {
-            console.error('An error occurred:', error);
+          console.error('An error occurred:', error);
         }
-    };
+      };
 
     return (
         <div className="exploreDatabase">

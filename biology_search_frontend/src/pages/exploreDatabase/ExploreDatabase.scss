@@ -1,0 +1,102 @@
+.exploreDatabase {
+    display: flex;
+    padding: 20px;
+    background-color: #f2f2f2;
+    flex-wrap: wrap;
+
+    .side-panel,
+    .main-panel {
+        box-sizing: border-box;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .side-panel {
+        width: calc(25% - 40px);
+        background-color: #f9f9f9;
+        margin-right: 20px;
+
+        h2 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+
+            select, input {
+                width: 100%;
+                margin-top: 5px;
+                padding: 5px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
+        }
+    }
+
+    .main-panel {
+        flex-grow: 1;
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+
+            input {
+                padding: 10px;
+                width: 80%;
+                margin-right: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            button {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #45a049;
+                }
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            thead {
+                background-color: #4CAF50;
+                color: white;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 10px;
+
+        .side-panel {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 20px;
+        }
+
+        .main-panel {
+            width: 100%;
+        }
+    }
+}

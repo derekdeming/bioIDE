@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "workspaces": ["frontend", "backend"],
+  "proxy": "http://localhost:3001",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
